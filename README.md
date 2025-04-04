@@ -1,2 +1,2 @@
-# fraggen
-Random Coil Fragment peptide Generator
+# Fraggen-Pep
+Random Coil Fragment Peptide Generator
