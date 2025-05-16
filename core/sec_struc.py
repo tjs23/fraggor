@@ -3,13 +3,15 @@ import fasta
 
 S4PRED_CMD = ['python3.9', '/home/tjs23/ext_gh/s4pred/run_model.py']
 
-def predict_proteome_ss(proteome_fasta, working_dir):
+def predict_proteome_ss(proteome_fasta, working_dir, verbose=True):
     
     def get_up_name(head):
         
         db, acc, *other = head.split('|')
         
         return acc
+    
+    proteome_ss = os.path.splitext(proteome_fasta)[0] + '.ss'
     
     sub_dir =  proteome_fasta.split('.fasta')[0]
     
@@ -26,13 +28,16 @@ def predict_proteome_ss(proteome_fasta, working_dir):
         os.mkdir(save_dir)
     
     n_seqs = len(data)
+    sstr_paths = []
     
     for i, (name, seq) in enumerate(data):
-        print(f'{i:,} of {n_seqs:,} : {name}', end = '\r')
+        if verbose:
+            print(f'{i:,} of {n_seqs:,} : {name}', end = '\r')
         
         fasta_path = os.path.join(save_dir, f'{name}.fasta')
         lock_path = os.path.join(save_dir, f'{name}.lock')
         sstr_path = os.path.join(save_dir, f'{name}.ss2')
+        sstr_paths.append(sstr_path)
         
         if os.path.exists(sstr_path):
              continue
@@ -50,10 +55,60 @@ def predict_proteome_ss(proteome_fasta, working_dir):
         subprocess.call(S4PRED_CMD + [fasta_path], stdout=open(sstr_path, 'w'))
         
         if os.path.exists(lock_path):
-                os.unlink(lock_path)
+            os.unlink(lock_path)
+    
+    if verbose:
+        print(f'{i:,} of {n_seqs:,}')
+    
+    with open(proteome_ss, 'w') as out_file_obj:
+        
+        for ss_path in sstr_paths:
+            with open(ss_path) as file_obj:
+                pid = os.path.basename(ss_path)[:-4]
+ 
+                head1 = file_obj.readline()
+                head2 = file_obj.readline()
+                seq = []
+                ss = []
+                start_num = None
+                prev_num = None
+ 
+                for line in file_obj:
+                    line = line.strip()
+ 
+                    if line:
+                        res_num, res_olc, res_ss, *scores = line.split()
+                        res_num = int(res_num)
+ 
+                        if start_num is None:
+                            start_num = res_num
+                            prev_num = res_num
+                        else:
+                            while res_num != (prev_num+1):
+                                seq.append('-')
+                                ss.append('-')
+                                res_num += 1
+ 
+                            prev_num = res_num
+                            
+                        seq.append(res_olc)
+                        ss.append(res_ss)
+ 
+                ss = ''.join(ss)
+                seq = ''.join(seq)
+                        
+        out_line = f'{pid} {start_num} {seq} {ss}\n'
+        out_file_obj.write(out_line)
+        
+    for ss_path in sstr_paths:
+        os.unlink(ss_path)
+ 
+  
+    if verbose:
+        print(f'Wrote {proteome_ss}')
         
     
-    print(f'{i:,} of {n_seqs:,}')
+    return proteome_ss
     
     
 if __name__ == '__main__': 

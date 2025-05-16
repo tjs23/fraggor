@@ -1,5 +1,4 @@
-import os, sys
-import numpy as np
+import os, re, time, datetime, string, sqlite3, urllib, socketimport numpy as np
 from glob import glob
 from random import randint
 
@@ -32,6 +31,8 @@ ECOLI_RANKED_CODONS = {'*': [(0.61, 'UAA'), (0.3, 'UGA'), (0.09, 'UAG')],
                        'W': [(1.0, 'UGG')],
                        'Y': [(0.59, 'UAU'), (0.41, 'UAC')]}
  
+CODON_DICTS = {'ecoli_standard':ECOLI_RANKED_CODONS}
+
 
 from utils.helpers import get_top_alignments, compute_energy
 from spectrum_graph import Spectrum_Graph
@@ -66,7 +67,7 @@ def aa_to_rna(aa_seq, codon_dict=ECOLI_RANKED_CODONS, rank=0):
     return rna_seq
 
 
-def aa_to_rna_rand_codon(aa_seq, n_gen, specific_sites=None, codon_dict=ECOLI_RANKED_CODONS, rmax=1):
+def aa_to_rna_rand_codon(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen, specific_sites=None, rmax=1):
     
     rna_seqs = []
     n_aa = len(aa_seq)
@@ -89,7 +90,7 @@ def aa_to_rna_rand_codon(aa_seq, n_gen, specific_sites=None, codon_dict=ECOLI_RA
     return rna_seqs
 
 
-def aa_to_opt_rna(aa_seq, n_gen=100, target=4):
+def aa_to_opt_rna(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen=100, target=4):
     
     def get_max_run(align):
        longest_run = 0
@@ -109,7 +110,7 @@ def aa_to_opt_rna(aa_seq, n_gen=100, target=4):
        
        return longest_run
     
-    rna_seq = aa_to_rna(aa_seq)
+    rna_seq = aa_to_rna(aa_seq, codon_dict)
     energies, opt_align = stemP_pred(rna_seq)
     
     opt_energy = energies[0]
@@ -119,7 +120,7 @@ def aa_to_opt_rna(aa_seq, n_gen=100, target=4):
        return opt_seq, opt_energy, opt_align
         
     opt_run = get_max_run(opt_align)
-    alt_seqs = aa_to_rna_rand_codon(aa_seq, n_gen)
+    alt_seqs = aa_to_rna_rand_codon(aa_seq, codon_dict, n_gen)
     
     for i, rna_seq2 in enumerate(alt_seqs):
        energies, top_align = stemP_pred(rna_seq2)
@@ -138,8 +139,15 @@ def aa_to_opt_rna(aa_seq, n_gen=100, target=4):
     return opt_seq, opt_energy, opt_align
            
 
-def get_random_coil_frags(data_dir, out_dir, pep_len=12, overlap=4, stem_loop_thresh=10):
-    sec_struc_paths =  glob(data_dir + '*.ss2')
+def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=12, overlap=4, codon_use='ecoli_standard', verbose=True):
+    
+    codon_dict = CODON_DICTS[codon_use]
+    
+    path_root =  os.path.join(out_dir, f'RCFrags_{path_prefix}_L{pep_len}_O{overlap}_C{codon_use}')
+    
+    out_aa_fasta = path_root + '.fasta'
+    out_nuc_fasta = path_root + '.fna'
+    out_nuc_opt_fasta = path_root + '_opt.fna'
     
     named_seqs_aa = []
     named_seqs_rna = []
@@ -148,38 +156,31 @@ def get_random_coil_frags(data_dir, out_dir, pep_len=12, overlap=4, stem_loop_th
     sl_energ = []
     sl_energ_opt = []
     
-    for k, ss_path in enumerate(sec_struc_paths):
-        
-        with open(ss_path) as file_obj:
-           pid = os.path.basename(ss_path)[:-4]
-           
-           head1 = file_obj.readline()
-           head2 = file_obj.readline()
-           regions = []
-           region_start = None
-           region_seq = []
+    with open(proteme_ss_path) as ss_file_obj:        
+        for line in ss_file_obj:            
+            pid, start, seq, ss = line.split()
+            start = int(start)
+            
+            region_start = None
+            region_seq = []
 
-           for line in file_obj:
-               line = line.strip()
-               
-               if line:
-                   res_num, res_olc, res_ss, *scores = line.split()
-                   res_num = int(res_num)
-                   
-                   if res_ss == 'C':
-                       if region_start:
-                           region_seq.append(res_olc)
-                       
-                       else:
-                           region_start = res_num
-                           region_seq = [res_olc]
-                       
-                   elif region_start:
-                       if len(region_seq) >= pep_len:
-                           regions.append((region_start, ''.join(region_seq)))
+            for i, (res_olc, res_ss) in enumerate(zip(seq, ss)):
+                res_num = i + start
  
-                       region_start = None
-                       region_seq = []                        
+                 if res_ss == 'C':
+                     if region_start:
+                         region_seq.append(res_olc)
+ 
+                     else:
+                         region_start = res_num
+                         region_seq = [res_olc]
+ 
+                 elif region_start:
+                     if len(region_seq) >= pep_len:
+                         regions.append((region_start, ''.join(region_seq)))
+ 
+                     region_start = None
+                     region_seq = []
     
            if region_start and (len(region_seq) >= pep_len):
                regions.append((region_start, ''.join(region_seq)))
@@ -217,14 +218,14 @@ def get_random_coil_frags(data_dir, out_dir, pep_len=12, overlap=4, stem_loop_th
                 + Sort, reasses, choose best if better energy
                 """
                 
-                rna_seq = aa_to_rna(aa_seq)
+                rna_seq = aa_to_rna(aa_seq, codon_dict)
                 energies, top_align = stemP_pred(rna_seq)
                 #runs = top_align.translate(transtab)
                 #five = '*****' in runs
                 
                 sl_energ.append(energies[0])
                 
-                opt_seq, opt_energy, opt_align = aa_to_opt_rna(aa_seq)
+                opt_seq, opt_energy, opt_align = aa_to_opt_rna(aa_seq, codon_dict)
                 
                 
                 #if (energies[0] > stem_loop_thresh) or five:
@@ -239,43 +240,45 @@ def get_random_coil_frags(data_dir, out_dir, pep_len=12, overlap=4, stem_loop_th
                 frags_aa.append((head, aa_seq))
                 frags_rna.append((head, rna_seq))
                 frags_rna_opt.append((head, opt_seq))
-                
-        print(f'{k+1:,} : {pid} : {len(frags_aa)}')
+        
+        if verbose:       
+            print(f'{k+1:,} : {pid} : {len(frags_aa)}')
         
         named_seqs_aa += frags_aa
         named_seqs_rna += frags_rna
         named_seqs_rna_opt += frags_rna_opt
     
-    fig, ax = plt.subplots()
-    
-    n = max(max(sl_energ), max(sl_energ_opt))+1
-    
-    hist, edges = np.histogram(sl_energ, bins=n, range=(0,n))    
-    ax.plot(edges[:-1], hist, color='#FF0000', label='Initial', alpha=0.5)
+    if verbose:
+        fig, ax = plt.subplots()
+ 
+        n = max(max(sl_energ), max(sl_energ_opt))+1
+ 
+        hist, edges = np.histogram(sl_energ, bins=n, range=(0,n))
+        ax.plot(edges[:-1], hist, color='#FF0000', label='Initial', alpha=0.5)
 
-    hist, edges = np.histogram(sl_energ_opt, bins=n, range=(0,n))    
-    ax.plot(edges[:-1], hist, color='#0080FF', label='Optimised', alpha=0.5)
+        hist, edges = np.histogram(sl_energ_opt, bins=n, range=(0,n))
+        ax.plot(edges[:-1], hist, color='#0080FF', label='Optimised', alpha=0.5)
+ 
+        ax.set_ylabel('Count')
+        ax.set_xlabel('Loop pair energy')
+ 
+        ax.legend()
+ 
+        plt.show()
     
-    ax.set_ylabel('Count')
-    ax.set_xlabel('Loop pair energy')
-    
-    ax.legend()
-    
-    plt.show()
-    
-    proteome = os.path.basename(os.path.normpath(data_dir))
-    out_aa_fasta = os.path.join(out_dir, f'{proteome}_frags_{pep_len}s{overlap}.fasta')
-    out_nuc_fasta = os.path.join(out_dir, f'{proteome}_frags_{pep_len}s{overlap}.fna')
-    out_nuc_opt_fasta = os.path.join(out_dir, f'{proteome}_frags_{pep_len}s{overlap}_opt.fna')
-   
     fasta.write_fasta(out_aa_fasta, named_seqs_aa)
-    print(f'Wrote {out_aa_fasta}')
+    if verbose:       
+        print(f'Wrote {out_aa_fasta}')
 
     fasta.write_fasta(out_nuc_fasta, named_seqs_rna)
-    print(f'Wrote {out_nuc_fasta}')
+    if verbose:       
+        print(f'Wrote {out_nuc_fasta}')
 
     fasta.write_fasta(out_nuc_opt_fasta, named_seqs_rna_opt)
-    print(f'Wrote {out_nuc_opt_fasta}')
+    if verbose:       
+        print(f'Wrote {out_nuc_opt_fasta}')
+    
+    return path_root
     
     
 if __name__ == '__main__': 
