@@ -1,4 +1,5 @@
 import os, atexit, time, smtplib
+from time import sleep
 
 from proteome import download_uniprot_proteome_fasta
 from sec_struc import predict_proteome_ss
@@ -8,18 +9,18 @@ from frag_gen import get_random_coil_frags
 DIR = os.path.dirname(__file__)
 JOB_DIR = os.path.join(DIR, 'jobs/pending/')
 RUN_DIR = os.path.join(DIR,'jobs/running/')
-RESULT_DIR = os.path.join(DIR,' fragment_data/')
-AGENT_PATH = os.path.join(DIR,' AGENT_LOCK')
+RESULT_DIR = os.path.join(DIR, 'fragment_data/')
+AGENT_PATH = os.path.join(DIR, 'AGENT_LOCK')
 SMTP_SERVER = 'mail.mrc-lmb.cam.ac.uk'      
 FROM_ADDR = 'tstevens@mrc-lmb.cam.ac.uk'     
 
 # Could sort jobs by creation time
 
-def make_rc_fragments(data_id, proteome_uid, codon_use, pep_len, overlap, save_dir):
+def make_rc_fragments(data_id, proteome_uid, species, codon_use, pep_len, overlap, save_dir):
    
-    proteome_fasta_path = download_uniprot_proteome_fasta(species, proteome_uid, verobose=False)
+    proteome_fasta_path = download_uniprot_proteome_fasta(species, proteome_uid, verbose=False)
 
-    proteome_ss_path = predict_proteome_ss(proteome_fasta_path, '../seq_sec_struc_data', verobose=False)
+    proteome_ss_path = predict_proteome_ss(proteome_fasta_path, '../seq_sec_struc_data', verbose=False)
     
     path_prefix = f'D{data_id}_U{proteome_uid}'
     
@@ -34,7 +35,7 @@ def cleanup_agent():
 def start_agent(wait_interval=5):
     
     if os.path.exists(AGENT_PATH):
-        raise Exception(f'Agent lock file "{agent_path}" present, possibly from an unclean shut-down. Remove this before retrying.')
+        raise Exception(f'Agent lock file "{AGENT_PATH}" present, possibly from an unclean shut-down. Remove this before retrying.')
     
     with open(AGENT_PATH, 'w') as file_obj:
         start_time = time.asctime(time.localtime())
@@ -62,12 +63,13 @@ def start_agent(wait_interval=5):
                    
                 os.unlink(job_path)   
                 
-                with open(run_path) as file_obj
-                   data_id, proteome, codon_use, pep_len, overlap, email = file_obj.read().strip().split()
+                with open(run_path) as file_obj:
+                   data = file_obj.read()
+                   data_id, proteome, species, codon_use, pep_len, overlap, email = data.strip().split('\t')
                    pep_len = int(pep_len)
                    overlap = int(overlap)
                    
-                   make_rc_fragments(data_id, proteome, codon_use, pep_len, overlap, RESULT_DIR)                   
+                   make_rc_fragments(data_id, proteome, species, codon_use, pep_len, overlap, RESULT_DIR)                   
                    
                    email_text = f'Subject: Peptide Fragment Generator Job\n\nPeptide Fragment Generator job {data_id} is now complete.\n\nAmino acid and nucleotide FASTA fragment sequence files are available at the web site.'
                    

@@ -3,7 +3,7 @@ from  urllib import request
 
 PROTEOME_URL = 'https://rest.uniprot.org/proteomes/stream?fields=upid%2Corganism%2Corganism_id%2Clineage%2Cprotein_count%2Cbusco&format=tsv&query=(taxonomy_name%3A{})%20AND%20(proteome_type%3A1)'
 FASTA_URL = 'https://rest.uniprot.org/uniprotkb/stream?query=(proteome:{})&format=fasta'
-PROTEOME_INFO_URL = 'https://rest.uniprot.org/proteomes/stream?fields=upid%2Corganism%2Corganism_id%2Clineage%2Cprotein_count%2Cbusco&format=tsv&query=(proteome:{})'
+PROTEOME_INFO_URL = 'https://rest.uniprot.org/proteomes/stream?fields=upid%2Corganism%2Corganism_id%2Clineage%2Cprotein_count%2Cbusco&format=tsv&query={}'
 
 def get_proteome_info(uid, url=PROTEOME_INFO_URL):
     
@@ -13,15 +13,17 @@ def get_proteome_info(uid, url=PROTEOME_INFO_URL):
     with request.urlopen(request.Request(furl)) as f:
        lines = f.read().decode('utf-8').split('\n')
        
+       for line in lines[1:]: 
+           if not line:
+               continue
  
-        if not line:
-          continue
- 
-        upid, species, tax_id, tax_lineage, count, busco = line.split('\t')
-        
-        if busco.strip():
-            completeness = float(busco[busco.index('C:')+2:busco.index('%[')])
-            info = (upid, species, tax_id, tax_lineage, int(count), completeness)
+           upid, species, tax_id, tax_lineage, count, busco = line.split('\t')
+           
+           if busco.strip():
+               completeness = float(busco[busco.index('C:')+2:busco.index('%[')])
+               info = (upid, species, tax_id, tax_lineage, int(count), completeness)
+           
+           break    
  
     return info
    
@@ -46,7 +48,7 @@ def get_uniprot_clade_proteome_info(tax_clade, top=10, verbose=True, url=PROTEOM
         if not line:
           continue
  
-        upid, species, tax_id, count, busco = line.split('\t')
+        upid, species, tax_id, tax_lineage, count, busco = line.split('\t')
         
         if busco.strip():
             completeness = float(busco[busco.index('C:')+2:busco.index('%[')])
@@ -58,13 +60,13 @@ def get_uniprot_clade_proteome_info(tax_clade, top=10, verbose=True, url=PROTEOM
         proteomes = proteomes[:top]
     
     if verbose:
-        for completeness, upid, species, tax_id, count  in proteomes:
+        for completeness, upid, species, tax_id, tax_lineage, count in proteomes:
             print(f' .. {completeness}% {upid} {species} {tax_id} {count}')
  
     return proteomes
   
   
-def download_uniprot_proteome_fasta(species, uid, out_dir='../proteomes', url=FASTA_URL, overwrite=False, verbose=True):
+def download_uniprot_proteome_fasta(species, uid, out_dir='../proteome_data', url=FASTA_URL, overwrite=False, verbose=True):
     
     species = species.split(' (')[0].replace(' ','_')
     species = species.replace('_sp._', '_sp-')

@@ -1,4 +1,5 @@
-import os, re, time, datetime, string, sqlite3, urllib, socketimport numpy as np
+import os, sys, re, time, datetime, string, sqlite3, urllib, socket
+import numpy as np
 from glob import glob
 from random import randint
 
@@ -67,7 +68,7 @@ def aa_to_rna(aa_seq, codon_dict=ECOLI_RANKED_CODONS, rank=0):
     return rna_seq
 
 
-def aa_to_rna_rand_codon(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen, specific_sites=None, rmax=1):
+def aa_to_rna_rand_codon(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen=100, specific_sites=None, rmax=1):
     
     rna_seqs = []
     n_aa = len(aa_seq)
@@ -167,23 +168,23 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
             for i, (res_olc, res_ss) in enumerate(zip(seq, ss)):
                 res_num = i + start
  
-                 if res_ss == 'C':
-                     if region_start:
-                         region_seq.append(res_olc)
+                if res_ss == 'C':
+                    if region_start:
+                        region_seq.append(res_olc)
  
-                     else:
-                         region_start = res_num
-                         region_seq = [res_olc]
+                    else:
+                        region_start = res_num
+                        region_seq = [res_olc]
  
-                 elif region_start:
-                     if len(region_seq) >= pep_len:
-                         regions.append((region_start, ''.join(region_seq)))
+                elif region_start:
+                    if len(region_seq) >= pep_len:
+                        regions.append((region_start, ''.join(region_seq)))
  
-                     region_start = None
-                     region_seq = []
+                    region_start = None
+                    region_seq = []
     
-           if region_start and (len(region_seq) >= pep_len):
-               regions.append((region_start, ''.join(region_seq)))
+            if region_start and (len(region_seq) >= pep_len):
+                regions.append((region_start, ''.join(region_seq)))
         
         frags_aa = []
         frags_rna = []
