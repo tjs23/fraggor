@@ -28,10 +28,10 @@ def predict_proteome_ss(proteome_fasta, working_dir, verbose=True, overwite=Fals
     if not os.path.exists(working_dir):
         os.mkdir(working_dir)
     
-    save_dir = os.path.join(working_dir, sub_dir)
+    temp_dir = os.path.join(working_dir, sub_dir)
     
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
+    if not os.path.exists(temp_dir):
+        os.mkdir(temp_dir)
     
     n_seqs = len(data)
     sstr_paths = []
@@ -41,9 +41,9 @@ def predict_proteome_ss(proteome_fasta, working_dir, verbose=True, overwite=Fals
         if True: # verbose:
             print(f'{i:,} of {n_seqs:,} : {name}', end = '\r')
         
-        fasta_path = os.path.join(save_dir, f'{name}.fasta')
-        lock_path = os.path.join(save_dir, f'{name}.lock')
-        sstr_path = os.path.join(save_dir, f'{name}.ss2')
+        fasta_path = os.path.join(temp_dir, f'{name}.fasta')
+        lock_path = os.path.join(temp_dir, f'{name}.lock')
+        sstr_path = os.path.join(temp_dir, f'{name}.ss2')
         sstr_paths.append(sstr_path)
         fasta_paths.append(fasta_path)
         
@@ -127,6 +127,8 @@ def predict_proteome_ss(proteome_fasta, working_dir, verbose=True, overwite=Fals
  
     for fasta_path in fasta_paths:
         os.unlink(fasta_path)
+    
+    os.unlink(temp_dir)
     
     if verbose:
         print(f'Wrote {proteome_ss}')

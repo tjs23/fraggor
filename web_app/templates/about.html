@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block head_extra %}
+{% endblock %}
+{% block page_content %}
+           <div class="row">
+              <div class="column">
+                 <fieldset class="frame">
+                     <legend>About</legend>
+                     <p>
+                     This service and data archive was conceived and created by Dom Bellini and Tim Stevens.
+                     </p>
+                     <p>
+                     The idea is to generate datasets of naturally occurring <a href="https://en.wikipedia.org/wiki/Peptide">peptides</a> that are likely <a href="https://en.wikipedia.org/wiki/Random_coil">random-coil</a>,
+                     (i.e. largely unstructured) which may be used in investigations of peptide binding etc.
+                     Accordingly, we not only generate peptide amino acid sequences, but also nucleic acid sequences for creating expression libraries.
+                     </p>
+                     <p>
+                     We provide a service to calculate peptide datasets and archive the data to give a continually
+                     expanding resource of pre-computed results.
+                     </p>
+                     <p>
+                     The overall workflow of the Fraggor system is roughly as follows:
+                     <ul>
+                     <li>Whole proteomes are obtained from <a href="https://www.uniprot.org/proteomes" target="_blank">UniProt</a> via taxonomic selection
+                     <li>Protein sequences are scanned for regions of likely random-coil secondary structure using <a href="https://github.com/psipred/s4pred" target="_blank">S4PRED</a> 
+                     <li>Regions of random-coil with an amino acid sequence exceeding a minimum length (the fragment size) are extracted
+                     <li>Selected regions are split into overlapping fragments of specified length; stepping an "offset" number of positions through the sequence,
+                     and always including a fragment that covers the region's end.
+                     <li>Peptide fragment amino acid sequences are converted into nucleic acid sequences using a specific codon set
+                     <li>Nucleic acid sequences are generated using both the most common codon for each amino acid and by optimising the sequence to minimise RNA stem loops
+                     <li>RNA stem loops are minimised by randomly selecting from among the codons available for each amino acid and evaluating the secondary structure content using <a href="https://github.com/sunghakang/StemP" target="_blank">StemP</a>
+                     </ul>
+                     </p>
+                 </fieldset>
+              </div>
+              <div class="column">
+                 <fieldset class="frame">
+                     <legend>Informatics components</legend>
+                     <p>Various external data sources and programs are used by Fraggor internally.</p>
+                     <h3>UniProt</h3>
+                     <p>All protein sequence data comes from the <a href="https://www.uniprot.org/proteomes" target="_blank">UniProt Proteome</a> database</p>
+                     <p><i>"UniProt: the Universal Protein Knowledgebase in 2025"</i><br>
+                     <b>Nucleic Acids Res. 53:D609-D617 (2025)</b> <a href="https://academic.oup.com/nar/article/53/D1/D609/7902999" target="_blank">&#128279;</a>
+                     </p>
+                     <h3>S4PRED</h3>
+                     <p>Random-coil secondary structure prediction is performed using <a href="https://github.com/psipred/s4pred" target="_blank">S4PRED</a></p>
+                     <p>Moffat, Lewis and Jones, David T<br>
+                     <i>"Increasing the Accuracy of Single Sequence Prediction Methods Using a Deep Semi-Supervised Learning Framework"</i><br>
+                     <b>Bioinformatics 2021 pp1367-4803 (2021)</b> <a href="https://doi.org/10.1093/bioinformatics/btab491" target="_blank">&#128279;</a>
+                     </p>
+                     <h3>StemP</h3>
+                     <p>The optimisation of nucleic acid sequences, to avoid RNA secondary structure, is done with <a href="https://github.com/sunghakang/StemP" target="_blank">StemP</a></p>
+                     <p>Tang, Mengyi and Hwang, Kumbit and Kang, Sung Ha<br>
+                     <i>"StemP: A fast and deterministic Stem-graph approach for RNA secondary structure prediction"</i><br>
+                     <b>IEEE/ACM Transactions on Computational Biology and Bioinformatics (2023)</b> <a href="https://ieeexplore.ieee.org/abstract/document/10058976" target="_blank">&#128279;</a>
+                     </p>
+                 </fieldset>
+              </div>
+           </div>
+{% endblock %}
+{% block init_script %} 
+{% endblock %}

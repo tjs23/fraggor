@@ -1,0 +1,161 @@
+body {font-family: Arial, Helvetica, sans-serif; margin: 0; overflow: hidden; background-color: #EEE;}
+a {text-decoration: none; color: #3656b0; white-space: nowrap;}
+a:hover {color: #A40; }
+h2 {margin: 8px 5px;}
+h3 {margin: 18px 5px 8px 5px;}
+p { margin: 5px 5px; color: #333;}
+li { margin: 5px 5px; color: #333;}
+li::marker {color: #3656b0;}
+ul {padding-inline-start: 18px;}
+select input, textarea  {background-color: #FFF;
+                         border: 1px solid #AAA;
+                         font-size: 12px; 
+                         color: #222; 
+                         border-radius: 4px;
+                         padding: 2px 4px;
+                         margin: 2px}
+
+select, input {max-width: 300px;}
+select:invalid { color: #AAA;}
+input::placeholder { color: #AAA;}
+textarea::placeholder { color: #AAA;}
+
+
+footer {border-top: 1px solid #888; color: white; text-shadow: 0px 0px 12px #00000044; 
+        background: #9ab; position:fixed; padding: 8px;
+        left: 0px; right: 0px; bottom: 0px; height:32px; background-image: url("banner.png");}
+footer a {color: #FFF; font-weight: bold}
+footer p {color: #FFF;}
+      
+.popup {position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: #00000080; display: none; z-index: 10;}
+.popup_inner {border: 2px solid #FFF; background-color: #EEE;
+              border-radius: 10px; margin: 0; padding: 7px;
+              max-height: 80vh; overflow: auto;
+              display: inline-block; margin: 0; position: relative; top: 50%;
+              left: 50%; -ms-transform: translate(-50%, -50%); transform: translate(-50%, -50%);}
+
+.navbar {background-color: #9ab; border-bottom: 1px solid #888; min-width: 825px;
+         height: 64px; white-space: nowrap; background-image: url("banner.png");}
+
+.main {position: fixed; top: 65px; left: 0; right: 0; bottom: 32px; background-color: #FFF;
+       padding: 5px; overflow: auto; max-width: 1280px; border-left: 1px solid #DDD; border-right: 1px solid #DDD;}
+.navtitle {display: block; padding: 5px 13px; float: left; min-width: 200px;}
+.navtitle a {color: #FFF; font-size: 32px; text-shadow: 0px 0px 12px #00000044; font-weight: bold;}
+.subtitle {font-size:12px; color: #FFF; padding: 2px 2px;}
+.navbuttons {display: block; padding:20px; float: right;}
+       
+.navbutton {border-radius: 5px; padding:5px; cursor:pointer; background-color: #FFFFFFEE; border: 0; color: #236;
+            font-size: 14px; text-shadow: 1px 1px #FFFFFF44; border: 1px solid #348;
+            box-shadow: 0px 0px 12px 0px #00000055;}
+.navbutton:hover {opacity: 0.7;}
+.navlogo {display: block; float: right;}
+.nav_dropdown_div {position: relative; z-index: 1; display: inline-block;}
+.nav_dropdown_panel {display: none; position: absolute;  background-color: #f9f9f9;
+                     min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                     padding: 4px 0px; z-index: 2; border-radius: 5px; border: 1px solid #89A;}
+.nav_dropdown_div:hover .nav_dropdown_panel {display:block;}
+
+.nav_dropdown_item {display: block; color: #236; font-size: 14px; padding: 4px 8px; cursor:pointer;}
+.nav_dropdown_item:hover {color: #600;  background-color: #DDDDDD;}
+
+.dda {font-size: 9px; vertical-align: middle;}
+
+.frame {border: 1px solid #CCC; border-radius: 5px;
+        margin: 5px 8px; padding: 8px; max-width: calc(100% - 50px);
+        width: fit-content; display:inline-block;}
+.frame legend {color: #3656b0; font-size:16pt; padding: 0px 4px;}
+
+.small_frame {border-radius: 0px; border: 1px solid #CCC; margin: 8px 4px; padding: 8px;
+              width: fit-content; display:block; border-radius: 3px; min-width: 400px;}
+.small_frame legend {color: #444; font-size:10pt; font-weight:bold; padding: 0px 4px; margin-left: 3px;}
+.small_frame p {color: #555; padding: 2px 4px; margin: 0px; font-size: 12px; }
+.small_frame input, .small_frame select {border: 1px solid #888; background-color: #EEF; max-width: 400px; min-width: 50px;}
+
+.small_frame2 {border-radius: 0px; border: 1px solid #CCC; margin: 4px 4px 4px 0px; padding: 2px;
+               width: fit-content; display:inline-block; border-radius: 3px; }
+.small_frame2 legend {color: #555; font-size:10pt; font-weight:bold; padding: 0px 4px; margin-left: 3px;}
+
+.row {display: block flex; flex-wrap: wrap;}
+.column {flex: 1 1 300px;}
+.card {flex: 1 1 350px; max-width: 500px;}
+
+.btn-red {font-weight:bold; font-size: 16px; background-color: #A40; border: 0; color: #FFF; border-radius: 5px; padding: 8px; margin: 5px;}
+.btn-red:hover {opacity: 0.5;}
+.btn-blue {font-weight:bold;
+           font-size: 16px;
+           background-color: #3656b0;
+           border: 0; color: #FFF;
+           border-radius: 5px;
+           padding: 8px;
+           margin: 5px;}
+.btn-blue:hover {opacity: 0.5;}
+.btn-green {font-weight:bold; font-size: 16px;background-color: #00bb00; border: 0; color: #FFF; border-radius: 5px; padding: 8px; margin: 5px;}
+.btn-green:hover {opacity: 0.5;}
+
+.fs13 {font-size: 13px;}
+
+.img_front {border: 1px solid #888; box-shadow: 0px 0px 5px 0px #00000055; float: left; margin-right: 7px; border-radius: 5px;}
+
+.error {color: #B10;}
+.note {color: #B10;}
+.grey {color: #555;}
+
+.course_material li {font-size: 15px; padding: 4px; margin: 0px;}
+
+.login_label {margin: 2px; font-size:10pt;}
+.login_button {height: 75px;}
+
+.edit {display:inline-block;}
+.filter {display:inline-block;}
+.table_top button, .table_top select, .table_top input {font-weight: bold; margin: 2px; font-size:10pt; background-color: #FFFFFF88; border-radius: 5px; border: 1px solid #3656b0; color: #3656b0}
+.table_top button:disabled, .table_top select:disabled, .table_top input:disabled {border: 1px solid #bbb; color: #bbb;}
+.table_top button:hover:enabled, .table_top select:hover:enabled, .table_top input:hover:enabled { background-color:#3656b022;}
+#select_table {font-weight: bold; margin: 2px; font-size:10pt; background-color: #FFFFFF88; border-radius: 5px; border: 1px solid #3656b0; color: #3656b0;}
+#select_table:disabled {border: 1px solid #bbb; color: #bbb;}
+#select_table:hover:enabled {background-color:#3656b022;}
+
+#div_modal_button {display:inline-block;}
+
+#edit_div {width: 900px; display: block flex; flex-wrap: nowrap;}
+#edit_popup {z-index: 5;}
+#info_popup {z-index: 5;}
+
+.edit_button {display:inline-block; padding: 5px; margin: 10px 2px 2px 2px;
+              background-color: #08F; color: #FFF; border: 1px solid #08F; 
+              font-weight: bold; border-radius: 5px;
+              width: 48%;}
+.edit_button:hover {opacity: 0.5; border: 1px solid #FFF;}
+
+.eb_red {background-color: #A00; color: #FFE; border: 1px solid #DA8;}
+
+.edit_col {font-size: 13px; width: 100%; max-width:800px; font-weight: bold; color: #555}
+.edit_col1 {font-weight: bold; color: #555; font-size: 13px; white-space: nowrap; 
+            width: 10%; text-align:right; padding-right:4px; max-width:150px;}
+.edit_col2 {font-size: 13px; width: 70%; max-width:800px; white-space: nowrap;}
+.info_col2 {font-size: 13px; width: 70%; max-width:400px; background-color: #FFF; padding: 4px; margin: 4px;}
+
+.is_required::after {content: "*"; color: #F00; font-weight: bold;}
+.needs_value {background-color: #FF8; border-color: #F00; border-width: 1px; }
+
+.edit_frame {flex: 1 1 350px; border: 1px solid #CCC; border-radius: 5px; margin: 5px 8px; padding: 5px;
+             width: fit-content; vertical-align:top; display:inline-block;}
+.edit_frame legend {color: #08F; font-weight:bold; font-size:12pt; text-shadow: 1px 1px #FFF; padding: 0px 4px;}
+
+.edit_inner {border-top: 1px solid #CCC; border-radius: 0px; border-right: 0; border-left: 0; border-bottom: 0;
+             margin: 2px; padding: 2px; display:block;}
+.edit_inner legend {color: #08F; font-weight:bold; font-size:11pt; text-shadow: 1px 1px #FFF; padding: 0px 4px; margin-left: 14px;}
+
+.tabulator {font-size: 11pt; width: calc(100% - 10px); max-width: calc(100vw - 10px);
+            background-color: #AAA; overflow: auto; border-radius: 5px;}
+
+button.clear_button {color: #A00;}
+button.all_same {color: #00000080; font-size: 14px; padding: 0px 2px; background-color: #88888800; border-radius:0px; border: 0; margin-left: 4px; }
+button.all_same:hover {color: #A00;}
+
+button.btn-link {font-size: 14px; font-weight: normal; text-shadow: 1px 1px #FFF; 
+                 background-color: #3656b044; border: 0; color: #000;
+                 border-radius: 4px;  padding: 5px;  margin: 2px;}
+button.btn-link::after {content: " \00BB";}
+button.btn-link:hover {color: #FFF; text-shadow: 1px 1px #000; }
+
+select.time {min-width:0; background-color: #FFF; margin-left: 4px; text-align: center; border-radius:0px; border: 1px solid #bbb;}

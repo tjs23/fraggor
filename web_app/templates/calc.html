@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block head_extra %}
+{% endblock %}
+{% block page_content %}
+           <div class="row">
+              <div class="column">
+                 <fieldset class="frame">
+                     <legend>New Dataset</legend>
+                     <p>Use this form to create <i>new</i> random-coil peptide fragment datasets, if there is nothing relevant amongst the <a href="{{ ssd }}/">existing datasets</a>.
+                     Peptide fragments can be generated for any proteome present in <a href="https://www.uniprot.org/proteomes">UniProt</a>. Fill in your email so you can be notified when data generation is complete.</p>
+                     <fieldset class="small_frame">
+                        <legend>Taxon search</legend>
+                        <input type="text" id="taxon_input" placeholder="e.g. human or Alphaproteobacteria"><button onclick="run_taxon_search();">Find</button>
+                        <small>Examples:</small>
+                        <button onclick="run_taxon_search('Escherichia coli');">E. coli</button>
+                        <button onclick="run_taxon_search('primates');">Primates</button>
+                        <p>Search for a species or taxomomic clade and then choose a proteome from the resulting table.
+                        Large clades will be limited to the top 1000 most complete proteomes</p>
+                     </fieldset>
+
+                     <fieldset class="small_frame" id="proteome_frame">
+                        <legend>Proteomes</legend>
+                        <h3>Selected Proteome: <span id="selected_proteome">None</span></h3>
+                        <div id="proteome_table"></div>
+                     </fieldset>
+
+                     <fieldset class="small_frame">
+                        <legend>Generator Parameters</legend>
+                        Peptide width <input id="width_entry" type="number" value="12" min="8" max="50" size="4">
+                        Peptide overlap <input id="overlap_entry" type="number" value="4" min="0" max="25" size="4">
+                        Codon set <select id="codon_set_select"></select>
+                     </fieldset>
+
+                     <fieldset class="small_frame">
+                        <legend>Notification Email</legend>
+                        <input type="email" id="user_email" size="64" oninput="update_submit_status();">
+                     </fieldset>
+                     
+                     <button class="btn-red" id="submit_calc" onclick="run_data_generation();">Generate!</button>
+                     
+                 </fieldset>
+              </div>
+           </div>
+{% endblock %}
+{% block init_script %} 
+        <script>
+            $(document).ready(function () {initialize_calc();});
+        </script>
+{% endblock %}

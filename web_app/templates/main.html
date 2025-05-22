@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block head_extra %}
+<meta http-equiv="refresh" content="50">
+{% endblock %}
+{% block page_content %}
+           <div class="row">
+              <div class="column">
+                 <fieldset class="frame">
+                     <legend>Fragment Datasets</legend>
+                     <img src="{{ ssd }}/static/frags.png" style="float:right; height:128px;">
+                     <p>This table lists datasets containing peptide fragments for the predicted random coil regions of a proteome.
+                     If the required data does not appear here, you may generate a new dataset at the <a  href="{{ ssd }}/calc">calculation page</a>,
+                     selecting an appropriate UniProt proteome and parameters.
+                     Note that the calculation is placed into a queue may take several hours to complete, due to the high volume of random coil predictions required.
+                     FASTA format files containing peptide sequences are provided for download.
+                     These are available as amino acid or nucleotide sequences.
+                     </p>
+                     <fieldset class="small_frame">
+                        <legend>Selected Row</legend>
+                        <button onclick="download_data();">Download FASTA:</button>
+                        <select id="seq_download_select">
+                            <option value='.fasta' selected>Amino acid sequences</option>
+                            <option value='.fna'>Nucleotide sequences</option>
+                            <option value='_opt.fna'>Optimised nucleotide sequences</option>
+                        </select>
+                        <button onclick="recalculate_data();">Recalculate dataset</button>
+                     </fieldset>
+                     <div id="main_table"></div>
+                 </fieldset>
+              </div>
+           </div>
+{% endblock %}
+{% block init_script %} 
+        <script>
+            $(document).ready(function () {initialize_main();});
+        </script>
+{% endblock %}
