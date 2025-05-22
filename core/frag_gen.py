@@ -1,4 +1,4 @@
-import os, sys, re, time, datetime, string, sqlite3, urllib, socket
+import os, sys
 import numpy as np
 from glob import glob
 from random import randint
@@ -21,16 +21,17 @@ ECOLI_RANKED_CODONS = {'*': [(0.61, 'UAA'), (0.3, 'UGA'), (0.09, 'UAG')],
                        'I': [(0.49, 'AUU'), (0.39, 'AUC'), (0.11, 'AUA')],
                        'K': [(0.74, 'AAA'), (0.26, 'AAG')],
                        'L': [(0.47, 'CUG'), (0.14, 'UUA'), (0.13, 'UUG'), (0.12, 'CUU'), (0.1, 'CUC'), (0.04, 'CUA')],
-                       'M': [(1.0, 'AUG')],
+                       'M': [(1.0,  'AUG')],
                        'N': [(0.51, 'AAC'), (0.49, 'AAU')],
                        'P': [(0.49, 'CCG'), (0.2, 'CCA'), (0.18, 'CCU'), (0.13, 'CCC')],
                        'Q': [(0.66, 'CAG'), (0.34, 'CAA')],
                        'R': [(0.36, 'CGU'), (0.36, 'CGC'), (0.11, 'CGG'), (0.07, 'CGA'), (0.07, 'AGA'), (0.04, 'AGG')],
                        'S': [(0.25, 'AGC'), (0.17, 'UCU'), (0.16, 'AGU'), (0.15, 'UCC'), (0.14, 'UCG'), (0.14, 'UCA')],
-                       'T': [(0.4, 'ACC'), (0.25, 'ACG'), (0.19, 'ACU'), (0.17, 'ACA')],
+                       'T': [(0.4,  'ACC'), (0.25, 'ACG'), (0.19, 'ACU'), (0.17, 'ACA')],
                        'V': [(0.35, 'GUG'), (0.28, 'GUU'), (0.2, 'GUC'), (0.17, 'GUA')],
-                       'W': [(1.0, 'UGG')],
-                       'Y': [(0.59, 'UAU'), (0.41, 'UAC')]}
+                       'W': [(1.0,  'UGG')],
+                       'Y': [(0.59, 'UAU'), (0.41, 'UAC')],
+                       }
  
 CODON_DICTS = {'ecoli_standard':ECOLI_RANKED_CODONS}
 
@@ -91,7 +92,7 @@ def aa_to_rna_rand_codon(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen=100, spec
     return rna_seqs
 
 
-def aa_to_opt_rna(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen=100, target=4):
+def aa_to_opt_rna(aa_seq, codon_dict=ECOLI_RANKED_CODONS, n_gen=25, target=4):
     
     def get_max_run(align):
        longest_run = 0
@@ -154,11 +155,13 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
     named_seqs_rna = []
     named_seqs_rna_opt = []
     
+    regions = []
     sl_energ = []
     sl_energ_opt = []
     
     with open(proteme_ss_path) as ss_file_obj:        
-        for line in ss_file_obj:            
+        for line in ss_file_obj:
+        
             pid, start, seq, ss = line.split()
             start = int(start)
             
@@ -205,6 +208,8 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
                         break
                 
                 aa_seq = region_seq[i:j]
+                if 'X' in aa_seq:
+                    continue
                 
                 start = region_start + i
                 end = region_start + j - i
@@ -241,9 +246,6 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
                 frags_aa.append((head, aa_seq))
                 frags_rna.append((head, rna_seq))
                 frags_rna_opt.append((head, opt_seq))
-        
-        if verbose:       
-            print(f'{k+1:,} : {pid} : {len(frags_aa)}')
         
         named_seqs_aa += frags_aa
         named_seqs_rna += frags_rna

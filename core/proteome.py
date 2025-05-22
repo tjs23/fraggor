@@ -46,7 +46,7 @@ def get_uniprot_clade_proteome_info(tax_clade, top=10, verbose=True, url=PROTEOM
         line = line.rstrip('\n')
  
         if not line:
-          continue
+            continue
  
         upid, species, tax_id, tax_lineage, count, busco = line.split('\t')
         

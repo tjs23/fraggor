@@ -38,6 +38,17 @@ def fasta_string(named_seqs):
     return '\n'.join(entries)
 
 
+def count_fasta(file_path):
+
+    num_seqs = 0
+    with open(file_path, buffering=2**16) as file_obj:
+        for line in file_obj:
+            if line[0] == '>':
+                num_seqs += 1
+                
+    return num_seqs
+                
+                
 def write_fasta(file_path, named_seqs, verbose=True):
     
     if isinstance(named_seqs, dict):
