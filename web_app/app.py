@@ -367,17 +367,28 @@ def get_data_table(json_data):
     with SQLCursor(f'SELECT data_id, status, proteome, date_day, date_month, date_year, codon_use, num_prots, num_seqs, pep_len, overlap, taxon_id, taxon_name FROM FragDataSet;') as cursor:
         for data_id, status, proteome, date_day, date_month, date_year, codon_use, num_prots, num_seqs, pep_len, overlap, taxon_id, taxon_name in cursor:
             date = datetime(date_year, date_month, date_day)
+            file_root = get_data_file_root(data_id, proteome, pep_len, overlap, codon_use)
+            fasta_path = os.path.join(RESULT_DIR, file_root + '.fasta')
+
+            if status == 'complete':
+                if not os.path.exists(fasta_path):
+                    if os.path.exists(job_path)
+                        status_updates.append((data_id, 'running'))
+                    else:
+                        status_updates.append((data_id, 'pending'))
+
+                    count_updates.append((data_id, 0))
+
+                elif not num_seqs:
+                    num_seqs = count_fasta(fasta_path)
+                    count_updates.append((data_id, num_seqs))
             
             if status == 'complete':
                 if not num_seqs:
-                    file_root = get_data_file_root(data_id, proteome, pep_len, overlap, codon_use)
-                    fasta_path = os.path.join(RESULT_DIR, file_root + '.fasta')
                     num_seqs = count_fasta(fasta_path)
                     count_updates.append((data_id, num_seqs))
             
             else:
-                file_root = get_data_file_root(data_id, proteome, pep_len, overlap, codon_use)
-                fasta_path = os.path.join(RESULT_DIR, file_root + '.fasta')
                 pend_path = os.path.join(JOB_DIR, f'{data_id}_{proteome}.job')
                 job_path = os.path.join(RUN_DIR, f'{data_id}_{proteome}.job')
                 

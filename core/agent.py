@@ -9,12 +9,12 @@ from frag_gen import get_random_coil_frags
 DIR = os.path.abspath(os.path.dirname(__file__))
 JOB_DIR = os.path.join(DIR, 'jobs/pending/')
 RUN_DIR = os.path.join(DIR,'jobs/running/')
+DONE_DIR = os.path.join(DIR,'jobs/complete/')
 RESULT_DIR = os.path.join(os.path.dirname(DIR), 'fragment_data/')
 AGENT_PATH = os.path.join(DIR, 'AGENT_LOCK')
 SMTP_SERVER = 'mail.mrc-lmb.cam.ac.uk'      
 FROM_ADDR = 'tstevens@mrc-lmb.cam.ac.uk'     
 
-# Could sort jobs by creation time
 
 def make_rc_fragments(data_id, proteome_uid, species, codon_use, pep_len, overlap, save_dir):
    
@@ -33,6 +33,14 @@ def cleanup_agent():
     os.unlink(AGENT_PATH)
 
 
+def move_file(src, dest):
+
+    with open(src) as src_file_obj, open(dest, 'w') as out_file_obj:
+        out_file_obj.write(src_file_obj.read())
+        
+    os.unlink(src)
+    
+
 def start_agent(wait_interval=5):
     
     if os.path.exists(AGENT_PATH):
@@ -45,31 +53,25 @@ def start_agent(wait_interval=5):
     print('FRAGGOR JOB AGENT START')
     atexit.register(cleanup_agent)    
     
-    aborted = os.listdir(RUN_DIR)
+    aborted = sorted(os.listdir(RUN_DIR))
     for file_name in aborted:
         if file_name.endswith('.job'):
             run_path = os.path.join(RUN_DIR, file_name)
             job_path = os.path.join(JOB_DIR, file_name)
-            
-            with open(run_path) as file_obj, open(job_path, 'w') as out_file_obj:
-                out_file_obj.write(file_obj.read())
-                
-            os.unlink(run_path)
+            move_file(run_path, job_path)
             print(f'Retry aborted job "{run_path}"')
         
     while os.path.exists(AGENT_PATH):
-        jobs = os.listdir(JOB_DIR)
+        jobs = sorted(os.listdir(JOB_DIR))
         
         for file_name in jobs:
             if file_name.endswith('.job'):
                 run_path = os.path.join(RUN_DIR, file_name)
                 job_path = os.path.join(JOB_DIR, file_name)
-                
-                with open(job_path) as file_obj, open(run_path, 'w') as out_file_obj:
-                   out_file_obj.write(file_obj.read())
-                   
-                os.unlink(job_path)   
-                
+                done_path = os.path.join(DONE_DIR, file_name)
+                move_file(job_path, run_path)   
+           
+                print(f'Running job "{run_path}"')
                 with open(run_path) as file_obj:
                     data = file_obj.read()
                     data_id, proteome, species, codon_use, pep_len, overlap, email = data.strip().split('\t')
@@ -78,14 +80,14 @@ def start_agent(wait_interval=5):
  
                     make_rc_fragments(data_id, proteome, species, codon_use, pep_len, overlap, RESULT_DIR)
  
-                    email_text = f'Subject: Faggor Peptide Fragment Generator Job\n\nPeptide Fragment Generator job {data_id} is now complete for {species} proteome {proteome}.\n\nAmino acid and nucleotide FASTA fragment sequence files are available at the web site.'
+                    email_text = f'Subject: Faggor Peptide Fragment Generator Job\n\nPeptide Fragment Generator job {data_id} is now complete for {species} proteome {proteome}.\n\nAmino acid and nucleotide FASTA fragment sequence files are available at the web site http://sean-pc-7.lmb.internal/fraggor/ .'
  
                     server = smtplib.SMTP(SMTP_SERVER)
                     #server.set_debuglevel(1)
                     server.sendmail(FROM_ADDR, email, email_text)
                     server.quit()
-                    
-                os.unlink(run_path)
+                
+                move_file(run_path, done_path)
                   
         sleep(wait_interval)
     

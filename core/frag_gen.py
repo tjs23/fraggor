@@ -226,21 +226,9 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
                 
                 rna_seq = aa_to_rna(aa_seq, codon_dict)
                 energies, top_align = stemP_pred(rna_seq)
-                #runs = top_align.translate(transtab)
-                #five = '*****' in runs
-                
                 sl_energ.append(energies[0])
-                
+                               
                 opt_seq, opt_energy, opt_align = aa_to_opt_rna(aa_seq, codon_dict)
-                
-                
-                #if (energies[0] > stem_loop_thresh) or five:
-                #print(energies[0], opt_energy)
-                #print(rna_seq)
-                #print(top_align)
-                #print(opt_seq)
-                #print(opt_align)
-        
                 sl_energ_opt.append(opt_energy)             
                
                 frags_aa.append((head, aa_seq))
