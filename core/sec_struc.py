@@ -236,22 +236,20 @@ def predict_proteome_ss(proteome_fasta, working_dir, verbose=True, overwite=Fals
         named_seqs = [(name, seq),]
         
         fasta.write_fasta(fasta_path, named_seqs, verbose=False)
-        job_data.append((fasta_path, sstr_path))
-        
-        """                
+        #job_data.append((fasta_path, sstr_path))
+                       
         subprocess.call(S4PRED_CMD + [fasta_path], stdout=open(sstr_path, 'w'))
         
         if not os.path.exists(sstr_path):
             subprocess.call(S4PRED_CMD + [fasta_path], stdout=open(sstr_path, 'w'))
-        """       
-        
+
         #if os.path.exists(lock_path):
         #    os.unlink(lock_path)
    
     if True: # verbose:
         print(f'{i:,} of {n_seqs:,}')
         
-    parallel_run(predict_ss, job_data, num_cpu=num_parallel, verbose=True)   
+    #parallel_run(predict_ss, job_data, num_cpu=num_parallel, verbose=True)   
      
     with open(proteome_ss, 'w') as out_file_obj:
         

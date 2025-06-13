@@ -181,19 +181,19 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
  
                 elif region_start:
                     if len(region_seq) >= pep_len:
-                        regions.append((region_start, ''.join(region_seq)))
+                        regions.append((pid, region_start, ''.join(region_seq)))
  
                     region_start = None
                     region_seq = []
     
             if region_start and (len(region_seq) >= pep_len):
-                regions.append((region_start, ''.join(region_seq)))
+                regions.append((pid, region_start, ''.join(region_seq)))
         
         frags_aa = []
         frags_rna = []
         frags_rna_opt = []
         
-        for region_start, region_seq in regions:
+        for pid, region_start, region_seq in regions:
             n = len(region_seq)
             
             for i in range(0, n-pep_len+overlap, overlap):
@@ -212,7 +212,7 @@ def get_random_coil_frags(proteme_ss_path, out_dir, path_prefix='TEST', pep_len=
                     continue
                 
                 start = region_start + i
-                end = region_start + j - i
+                end = region_start + j
                 
                 head = f'{pid}:{start}-{end}'
                  
